@@ -10,4 +10,5 @@ app.get("/", (req,res)=>{
 })
 app.use("/api/notes", noteRouter)
 
+
 export default app
