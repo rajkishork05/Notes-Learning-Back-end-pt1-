@@ -1,26 +1,23 @@
 import Note from "../models/noteModel.js";
-
-const createNote = async (req, res) => {
+import ErrorHandler from "../utils/errorHandler.js";
+//create note
+const createNote = async (req, res, next) => {
     try {
         const { title, content } = req.body
 
         if (!title || !content) {
-            return res.status(400).json({
-                message: "Title and Content are required"
-            })
+            return next(new ErrorHandler("Title and Content are required", 404))
         }
         const note = await Note.create({ title, content })
         res.status(201).json({
             message: "Note Created Successfully"
         })
     } catch (error) {
-        res.status(500).json({
-            message: "Server error",
-            error: error.message
-        })
+        next(error)
     }
 }
 
+//show all notes
 const showNotes = async (req, res) => {
     try {
         const notes = await Note.find().sort({ createdAt: -1 })
@@ -29,14 +26,13 @@ const showNotes = async (req, res) => {
             notes
         })
     } catch (error) {
-        res.status(500).json({
-            message: "server error",
-            error: error.message
-        })
+        next(error)
     }
 }
 
-const getNoteById = async (req, res) => {
+
+//get the note by id
+const getNoteById = async (req, res, next) => {
 
 
     const { id } = req.params;
@@ -45,26 +41,60 @@ const getNoteById = async (req, res) => {
         const note = await Note.findById(id)
         
         if (!note) {
-            return res.status(404).json({
-                message: "No note found"
-            })
+            return next(new ErrorHandler("No note Found", 404))
         }
         res.status(200).json({
             message: "Found Your Note",
             note
         })
     } catch (error) {
-        res.status(500).json({
-            message: "server error",
-            error: error.message
-        })
+        next(error)
     }
-
-
-
-
-
 
 }
 
-export { createNote, showNotes, getNoteById }
+
+//updating the note
+const updateNoteById = async(req,res)=>{
+    const {id} = req.params;
+    const {title, content} = req.body;
+
+    try {
+        
+        const note = await Note.findByIdAndUpdate(id, {title, content}, {new: true});
+        if(!note){
+            return next(new ErrorHandler("no note found", 404))
+        }
+        res.status(200).json({
+            message : "successfully updated",
+            note
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
+//deleting note by id
+const deleteNoteById = async(req, res)=>{
+    const {id} = req.params;
+
+    try {
+        const deletedNote = await Note.findByIdAndDelete(id);
+        if(!deletedNote){
+            return next(new ErrorHandler("no note found", 404))    
+        }
+        res.status(200).json({
+            message : "note deleted successfully",
+            deletedNote   
+        })    
+}
+     catch (error) {
+        next(error)
+    }
+
+}
+
+
+export { createNote, showNotes, getNoteById, updateNoteById, deleteNoteById }
