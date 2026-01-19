@@ -5,12 +5,14 @@ const createNote = async (req, res, next) => {
     try {
         const { title, content } = req.body
 
-        if (!title || !content) {
+        if (!title.trim() || !content.trim()) {
             return next(new ErrorHandler("Title and Content are required", 404))
         }
         const note = await Note.create({ title, content })
         res.status(201).json({
-            message: "Note Created Successfully"
+            success:true,
+            message: "Note Created Successfully",
+            note
         })
     } catch (error) {
         next(error)
@@ -18,7 +20,7 @@ const createNote = async (req, res, next) => {
 }
 
 //show all notes
-const showNotes = async (req, res) => {
+const showNotes = async (req, res, next) => {
     try {
         const notes = await Note.find().sort({ createdAt: -1 })
         res.status(200).json({
@@ -44,6 +46,7 @@ const getNoteById = async (req, res, next) => {
             return next(new ErrorHandler("No note Found", 404))
         }
         res.status(200).json({
+            success:true,
             message: "Found Your Note",
             note
         })
@@ -55,7 +58,7 @@ const getNoteById = async (req, res, next) => {
 
 
 //updating the note
-const updateNoteById = async(req,res)=>{
+const updateNoteById = async(req, res, next)=>{
     const {id} = req.params;
     const {title, content} = req.body;
 
@@ -66,6 +69,7 @@ const updateNoteById = async(req,res)=>{
             return next(new ErrorHandler("no note found", 404))
         }
         res.status(200).json({
+            success : true,
             message : "successfully updated",
             note
         })
@@ -77,7 +81,7 @@ const updateNoteById = async(req,res)=>{
 
 
 //deleting note by id
-const deleteNoteById = async(req, res)=>{
+const deleteNoteById = async(req, res, next)=>{
     const {id} = req.params;
 
     try {
@@ -86,6 +90,7 @@ const deleteNoteById = async(req, res)=>{
             return next(new ErrorHandler("no note found", 404))    
         }
         res.status(200).json({
+            success: true,
             message : "note deleted successfully",
             deletedNote   
         })    
